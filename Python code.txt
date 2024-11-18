@@ -1,0 +1,1127 @@
+
+I utilized Anaconda Navigator as the primary platform and Visual Studio Code as the source code editor.The specific kernel I used was .conda(python 3.12.1) and the code implemented is as follows:
+pip install pandas
+
+
+pip install plotly
+
+
+
+pip install matplotlib
+
+
+
+pip install seaborn
+
+
+
+pip install scipy
+
+Requirement already satisfied: scipy in c:\users\tathb\dataset_bigdata\.conda\lib\site-packages (1.12.0)
+Requirement already satisfied: numpy<1.29.0,>=1.22.4 in c:\users\tathb\dataset_bigdata\.conda\lib\site-packages (from scipy) (1.26.3)
+Note: you may need to restart the kernel to use updated packages.
+
+import matplotlib as plt
+import pandas as pd
+import seaborn as sns
+
+import numpy as np
+
+import matplotlib.pyplot as mpl_plt
+
+from scipy.stats import linregress
+
+from sklearn.metrics import r2_score, mean_squared_error
+
+Sales_Table = pd.read_csv('./sales.csv')
+
+Forecast_Table = pd.read_csv('./forecast.csv')
+
+Promo_price_Table = pd.read_csv('./promo_price.csv')
+
+Regular_price_Table = pd.read_csv('./regular_price.csv')
+
+Sales_Table.head()
+
+	daydt 	item_id 	store_id 	sales
+0 	2022-05-01 	item7 	store2 	0
+1 	2021-09-25 	item7 	store2 	0
+2 	2021-09-26 	item7 	store2 	0
+3 	2021-09-27 	item7 	store2 	0
+4 	2021-09-28 	item7 	store2 	0
+
+print(Sales_Table)
+
+            daydt item_id store_id  sales
+0      2022-05-01   item7   store2      0
+1      2021-09-25   item7   store2      0
+2      2021-09-26   item7   store2      0
+3      2021-09-27   item7   store2      0
+4      2021-09-28   item7   store2      0
+...           ...     ...      ...    ...
+12113  2019-01-05   item4   store2      5
+12114  2019-01-06   item4   store2      5
+12115  2019-01-07   item4   store2      5
+12116  2019-01-08   item4   store2      6
+12117  2019-01-09   item4   store2      5
+
+[12118 rows x 4 columns]
+
+print(Forecast_Table)
+
+          daydt item_id store_id  forecast
+0    2022-05-02   item7   store4   0.17400
+1    2022-05-03   item7   store4   0.00000
+2    2022-05-04   item7   store4   0.18600
+3    2022-05-05   item7   store4   0.32486
+4    2022-05-06   item7   store4   0.01786
+..          ...     ...      ...       ...
+275  2022-05-25   item5   store3   0.00000
+276  2022-05-26   item5   store3   0.17200
+277  2022-05-27   item5   store3   0.17100
+278  2022-05-28   item5   store3   0.16200
+279  2022-05-29   item5   store3   0.18300
+
+[280 rows x 4 columns]
+
+print(Promo_price_Table)
+
+          daydt item_id store_id  promo_price
+0    2019-08-08   item6   store4        252.6
+1    2019-08-08   item6   store3        252.6
+2    2019-08-09   item6   store4        252.6
+3    2019-08-09   item6   store3        252.6
+4    2019-08-10   item6   store4        252.6
+..          ...     ...      ...          ...
+248  2022-07-07   item4   store2         20.1
+249  2022-07-08   item1   store1        296.0
+250  2022-07-08   item1   store4        296.0
+251  2022-07-08   item1   store2         20.5
+252  2022-07-08   item4   store2         20.1
+
+[253 rows x 4 columns]
+
+print(Regular_price_Table)
+
+            daydt item_id store_id  regular_price
+0      2019-01-02   item1   store1          285.0
+1      2020-08-29   item1   store1          295.3
+2      2020-08-30   item1   store1          295.3
+3      2020-08-31   item1   store1          295.3
+4      2020-08-22   item1   store1          295.3
+...           ...     ...      ...            ...
+12113  2019-01-16   item6   store4          315.8
+12114  2019-01-17   item6   store4          315.8
+12115  2019-01-18   item6   store4          315.8
+12116  2019-01-19   item6   store4          315.8
+12117  2019-01-20   item6   store4          315.8
+
+[12118 rows x 4 columns]
+
+na_values_Sales = Sales_Table.isna().any().any()
+print(na_values_Sales)
+
+False
+
+na_values_forecast = Forecast_Table.isna().any().any()
+print(na_values_forecast)
+
+False
+
+na_values_regular_price = Regular_price_Table.isna().any().any()
+print(na_values_regular_price)
+
+False
+
+na_values_promo_price = Promo_price_Table.isna().any().any()
+print(na_values_promo_price)
+
+False
+
+replace_Item_ids = {'item1': 1, 'item2': 2, 'item4': 4, 'item5': 5, 'item6': 6, 'item7': 7}
+replace_store_ids = {'store1': 1, 'store2': 2, 'store3': 3, 'store4': 4}
+
+Sales_Table['store_id'] = Sales_Table['store_id'].replace(replace_store_ids)
+
+
+
+Sales_Table['item_id'] = Sales_Table['item_id'].replace(replace_Item_ids)
+
+
+
+print(Sales_Table)
+
+            daydt  item_id  store_id  sales
+0      2022-05-01        7         2      0
+1      2021-09-25        7         2      0
+2      2021-09-26        7         2      0
+3      2021-09-27        7         2      0
+4      2021-09-28        7         2      0
+...           ...      ...       ...    ...
+12113  2019-01-05        4         2      5
+12114  2019-01-06        4         2      5
+12115  2019-01-07        4         2      5
+12116  2019-01-08        4         2      6
+12117  2019-01-09        4         2      5
+
+[12118 rows x 4 columns]
+
+Regular_price_Table['store_id'] = Regular_price_Table['store_id'].replace(replace_store_ids)
+Regular_price_Table['item_id'] = Regular_price_Table['item_id'].replace(replace_Item_ids)
+
+
+
+print(Regular_price_Table)
+
+            daydt  item_id  store_id  regular_price
+0      2019-01-02        1         1          285.0
+1      2020-08-29        1         1          295.3
+2      2020-08-30        1         1          295.3
+3      2020-08-31        1         1          295.3
+4      2020-08-22        1         1          295.3
+...           ...      ...       ...            ...
+12113  2019-01-16        6         4          315.8
+12114  2019-01-17        6         4          315.8
+12115  2019-01-18        6         4          315.8
+12116  2019-01-19        6         4          315.8
+12117  2019-01-20        6         4          315.8
+
+[12118 rows x 4 columns]
+
+Promo_price_Table['store_id'] = Promo_price_Table['store_id'].replace(replace_store_ids)
+Promo_price_Table['item_id'] = Promo_price_Table['item_id'].replace(replace_Item_ids)
+
+
+
+print(Promo_price_Table)
+
+          daydt  item_id  store_id  promo_price
+0    2019-08-08        6         4        252.6
+1    2019-08-08        6         3        252.6
+2    2019-08-09        6         4        252.6
+3    2019-08-09        6         3        252.6
+4    2019-08-10        6         4        252.6
+..          ...      ...       ...          ...
+248  2022-07-07        4         2         20.1
+249  2022-07-08        1         1        296.0
+250  2022-07-08        1         4        296.0
+251  2022-07-08        1         2         20.5
+252  2022-07-08        4         2         20.1
+
+[253 rows x 4 columns]
+
+Forecast_Table['store_id']  = Forecast_Table['store_id'].replace(replace_store_ids)
+Forecast_Table['item_id'] = Forecast_Table['item_id'].replace(replace_Item_ids)
+
+
+
+print(Forecast_Table)
+
+          daydt  item_id  store_id  forecast
+0    2022-05-02        7         4   0.17400
+1    2022-05-03        7         4   0.00000
+2    2022-05-04        7         4   0.18600
+3    2022-05-05        7         4   0.32486
+4    2022-05-06        7         4   0.01786
+..          ...      ...       ...       ...
+275  2022-05-25        5         3   0.00000
+276  2022-05-26        5         3   0.17200
+277  2022-05-27        5         3   0.17100
+278  2022-05-28        5         3   0.16200
+279  2022-05-29        5         3   0.18300
+
+[280 rows x 4 columns]
+
+print(Forecast_Table.info())
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 280 entries, 0 to 279
+Data columns (total 4 columns):
+ #   Column    Non-Null Count  Dtype  
+---  ------    --------------  -----  
+ 0   daydt     280 non-null    object 
+ 1   item_id   280 non-null    int64  
+ 2   store_id  280 non-null    int64  
+ 3   forecast  280 non-null    float64
+dtypes: float64(1), int64(2), object(1)
+memory usage: 8.9+ KB
+None
+
+print(Sales_Table.info())
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 12118 entries, 0 to 12117
+Data columns (total 4 columns):
+ #   Column    Non-Null Count  Dtype 
+---  ------    --------------  ----- 
+ 0   daydt     12118 non-null  object
+ 1   item_id   12118 non-null  int64 
+ 2   store_id  12118 non-null  int64 
+ 3   sales     12118 non-null  int64 
+dtypes: int64(3), object(1)
+memory usage: 378.8+ KB
+None
+
+print(Regular_price_Table.info())
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 12118 entries, 0 to 12117
+Data columns (total 4 columns):
+ #   Column         Non-Null Count  Dtype  
+---  ------         --------------  -----  
+ 0   daydt          12118 non-null  object 
+ 1   item_id        12118 non-null  int64  
+ 2   store_id       12118 non-null  int64  
+ 3   regular_price  12118 non-null  float64
+dtypes: float64(1), int64(2), object(1)
+memory usage: 378.8+ KB
+None
+
+print(Promo_price_Table.info())
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 253 entries, 0 to 252
+Data columns (total 4 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   daydt        253 non-null    object 
+ 1   item_id      253 non-null    int64  
+ 2   store_id     253 non-null    int64  
+ 3   promo_price  253 non-null    float64
+dtypes: float64(1), int64(2), object(1)
+memory usage: 8.0+ KB
+None
+
+sales_summary = Sales_Table['sales'].describe()
+print(sales_summary)
+
+count    12118.000000
+mean         3.146064
+std          4.598293
+min          0.000000
+25%          0.000000
+50%          1.000000
+75%          5.000000
+max         68.000000
+Name: sales, dtype: float64
+
+regular_price_summary = Regular_price_Table['regular_price'].describe()
+print(regular_price_summary)
+
+count    12118.000000
+mean       175.369533
+std        130.067835
+min         18.500000
+25%         25.600000
+50%        259.700000
+75%        300.500000
+max        330.400000
+Name: regular_price, dtype: float64
+
+promo_price_summary = Promo_price_Table['promo_price'].describe()
+print(promo_price_summary)
+
+count    253.000000
+mean     186.529249
+std      114.566089
+min       15.500000
+25%       20.500000
+50%      252.600000
+75%      264.300000
+max      296.000000
+Name: promo_price, dtype: float64
+
+forecast_summary = Forecast_Table['forecast'].describe()
+print(forecast_summary)
+
+count    280.000000
+mean       2.588618
+std        3.622885
+min        0.000000
+25%        0.155500
+50%        0.452075
+75%        4.007180
+max       19.311570
+Name: forecast, dtype: float64
+
+sales_summary_per_item = Sales_Table.groupby('item_id')['sales'].describe()
+print(sales_summary_per_item)
+
+          count      mean       std  min  25%  50%  75%   max
+item_id                                                      
+1        4036.0  6.624381  5.283782  0.0  3.0  6.0  9.0  68.0
+2        1338.0  4.843797  3.884106  0.0  2.0  4.0  7.0  23.0
+4        1349.0  3.515196  3.642493  0.0  1.0  3.0  5.0  29.0
+5        1093.0  0.030192  0.181577  0.0  0.0  0.0  0.0   2.0
+6        2681.0  0.014174  0.127346  0.0  0.0  0.0  0.0   2.0
+7        1621.0  0.057989  0.335685  0.0  0.0  0.0  0.0   5.0
+
+sales_summary_per_store = Sales_Table.groupby('store_id')['sales'].describe()
+print(sales_summary_per_store)
+
+           count      mean       std  min   25%  50%   75%   max
+store_id                                                        
+1         1342.0  7.253353  5.870328  0.0  3.25  6.0  10.0  68.0
+2         4685.0  4.130203  4.341983  0.0  1.00  3.0   6.0  33.0
+3         2436.0  0.019704  0.144799  0.0  0.00  0.0   0.0   2.0
+4         3655.0  2.460192  4.343299  0.0  0.00  0.0   4.0  38.0
+
+regular_price_summary_per_item = Regular_price_Table.groupby('item_id')['regular_price'].describe()
+print(regular_price_summary_per_item)
+
+          count        mean           std    min    25%    50%    75%    max
+item_id                                                                     
+1        4036.0  201.026809  1.247116e+02   25.2   25.6  270.7  295.3  314.8
+2        1338.0   97.300000  2.843234e-14   97.3   97.3   97.3   97.3   97.3
+4        1349.0   24.940993  3.869563e-01   24.0   25.1   25.1   25.1   25.1
+5        1093.0   19.881885  5.948815e-01   18.5   19.4   19.8   19.8   21.2
+6        2681.0  318.228795  5.438051e+00  315.8  315.8  315.8  315.8  330.4
+7        1621.0  169.678408  1.100610e+02   35.2   35.2  259.7  259.7  259.7
+
+regular_price_summary_per_store = Regular_price_Table.groupby('store_id')['regular_price'].describe()
+print(regular_price_summary_per_store)
+
+           count        mean         std    min    25%    50%    75%    max
+store_id                                                                   
+1         1342.0  289.024814   12.621708  270.7  270.7  295.3  295.3  314.8
+2         4685.0   47.202476   31.854504   24.0   25.1   25.6   97.3   97.3
+3         2436.0  184.362110  148.469390   18.5   19.8  315.8  315.8  330.4
+4         3655.0  291.930780   24.530935  259.7  259.7  295.3  315.8  330.4
+
+Sales_Table['daydt'] = pd.to_datetime(Sales_Table['daydt'])
+
+monthly_sales_mean = Sales_Table.resample('M', on='daydt')['sales'].mean()
+print(monthly_sales_mean)
+
+daydt
+2019-01-31    4.911917
+2019-02-28    4.520408
+2019-03-31    4.852535
+2019-04-30    4.576190
+2019-05-31    6.000000
+2019-06-30    5.590476
+2019-07-31    4.133641
+2019-08-31    4.686636
+2019-09-30    4.960177
+2019-10-31    4.112903
+2019-11-30    3.879167
+2019-12-31    3.806452
+2020-01-31    4.611321
+2020-02-29    4.478927
+2020-03-31    1.759857
+2020-04-30    0.799257
+2020-05-31    1.417266
+2020-06-30    3.130112
+2020-07-31    3.717391
+2020-08-31    3.695341
+2020-09-30    3.539033
+2020-10-31    3.767025
+2020-11-30    4.025926
+2020-12-31    3.016181
+2021-01-31    3.612903
+2021-02-28    3.222222
+2021-03-31    2.922330
+2021-04-30    2.449664
+2021-05-31    3.136364
+2021-06-30    3.200000
+2021-07-31    3.126623
+2021-08-31    2.668831
+2021-09-30    2.483221
+2021-10-31    2.564516
+2021-11-30    2.413333
+2021-12-31    2.009677
+2022-01-31    2.177419
+2022-02-28    1.950000
+2022-03-31    2.074194
+2022-04-30    2.778523
+2022-05-31    2.070968
+2022-06-30    2.013333
+2022-07-31    2.093548
+2022-08-31    1.512903
+2022-09-30    1.427273
+Freq: ME, Name: sales, dtype: float64
+
+
+  monthly_sales_mean = Sales_Table.resample('M', on='daydt')['sales'].mean()
+
+yearly_sales_mean = Sales_Table.resample('Y', on='daydt')['sales'].mean()
+print(yearly_sales_mean)
+
+daydt
+2019-12-31    4.643426
+2020-12-31    3.152286
+2021-12-31    2.816108
+2022-12-31    2.053980
+Freq: YE-DEC, Name: sales, dtype: float64
+
+
+  yearly_sales_mean = Sales_Table.resample('Y', on='daydt')['sales'].mean()
+
+monthly_sales_mean_per_item = Sales_Table.groupby('item_id').resample('M', on='daydt')['sales'].mean()
+
+print(monthly_sales_mean_per_item)
+
+item_id  daydt     
+1        2019-01-31     7.722222
+         2019-02-28     5.642857
+         2019-03-31     6.645161
+         2019-04-30     7.644444
+         2019-05-31    10.956989
+                         ...    
+7        2022-05-31     0.032258
+         2022-06-30     0.116667
+         2022-07-31     0.064516
+         2022-08-31     0.096774
+         2022-09-30     0.045455
+Name: sales, Length: 250, dtype: float64
+
+
+  monthly_sales_mean_per_item = Sales_Table.groupby('item_id').resample('M', on='daydt')['sales'].mean()
+
+yearly_sales_mean_per_item = Sales_Table.groupby('item_id').resample('Y', on='daydt')['sales'].mean()
+
+print(yearly_sales_mean_per_item)
+
+item_id  daydt     
+1        2019-12-31    8.179487
+         2020-12-31    6.622607
+         2021-12-31    6.466421
+         2022-12-31    4.618421
+2        2019-12-31    3.219780
+         2020-12-31    5.426184
+         2021-12-31    6.016620
+         2022-12-31    4.681102
+4        2019-12-31    5.854396
+         2020-12-31    3.196721
+         2021-12-31    2.621918
+         2022-12-31    1.905512
+5        2019-12-31    0.046296
+         2020-12-31    0.040984
+         2021-12-31    0.019178
+         2022-12-31    0.023622
+6        2019-12-31    0.019691
+         2020-12-31    0.010929
+         2021-12-31    0.016438
+         2022-12-31    0.007874
+7        2020-12-31    0.015666
+         2021-12-31    0.093151
+         2022-12-31    0.039370
+Name: sales, dtype: float64
+
+
+  yearly_sales_mean_per_item = Sales_Table.groupby('item_id').resample('Y', on='daydt')['sales'].mean()
+
+yearly_sales_max_per_item = Sales_Table.groupby('item_id').resample('Y', on='daydt')['sales'].max()
+
+print(yearly_sales_max_per_item)
+
+item_id  daydt     
+1        2019-12-31    35
+         2020-12-31    36
+         2021-12-31    38
+         2022-12-31    68
+2        2019-12-31    12
+         2020-12-31    23
+         2021-12-31    20
+         2022-12-31    19
+4        2019-12-31    29
+         2020-12-31    18
+         2021-12-31    14
+         2022-12-31     8
+5        2019-12-31     1
+         2020-12-31     2
+         2021-12-31     1
+         2022-12-31     1
+6        2019-12-31     2
+         2020-12-31     2
+         2021-12-31     2
+         2022-12-31     1
+7        2020-12-31     1
+         2021-12-31     5
+         2022-12-31     2
+Name: sales, dtype: int64
+
+
+  yearly_sales_max_per_item = Sales_Table.groupby('item_id').resample('Y', on='daydt')['sales'].max()
+
+Sales_Table['year'] = Sales_Table['daydt'].dt.year
+
+sales_per_year = Sales_Table.groupby('year')['sales'].sum()
+
+mpl_plt.figure(figsize=(10, 6))
+sales_per_year.plot(kind='line', marker='o', color='b', linestyle='-')
+mpl_plt.title('Sales per Year')
+mpl_plt.xlabel('Year')
+mpl_plt.ylabel('Total Sales')
+mpl_plt.grid(True)
+mpl_plt.xticks(sales_per_year.index) 
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+sales_per_item_per_year = Sales_Table.groupby(['item_id', 'year'])['sales'].sum()
+
+mpl_plt.figure(figsize=(10, 6))
+for item_id, sales_data in sales_per_item_per_year.groupby(level=0):
+    sales_data.plot(kind='line', marker='o', label=f'Item {item_id}')
+
+mpl_plt.title('Sales per Year for Each Item')
+mpl_plt.xlabel('Year')
+mpl_plt.ylabel('Total Sales')
+mpl_plt.grid(True)
+mpl_plt.legend()  
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+mean_sales_per_item = Sales_Table.groupby('item_id')['sales'].mean()
+
+mpl_plt.figure(figsize=(10, 6))
+mean_sales_per_item.plot(kind='bar', color='skyblue')
+mpl_plt.title('Mean Sales per Item')
+mpl_plt.xlabel('Item')
+mpl_plt.ylabel('Mean Sales')
+mpl_plt.grid(axis='y', linestyle='--', alpha=0.7)
+mpl_plt.xticks(rotation=0, ha='center')  # Προσθήκη rotation=0 και ha='center' για κανονική εμφάνιση των αριθμών στον άξονα x
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+sales_per_store_per_year = Sales_Table.groupby(['store_id', 'year'])['sales'].sum()
+sales_per_store_per_year.unstack().plot(kind='bar', stacked=False, ax=mpl_plt.gca())
+mpl_plt.title('Sales per Store per Year')
+mpl_plt.xlabel('Store')
+mpl_plt.ylabel('Total Sales')
+mpl_plt.grid(axis='y', linestyle='--', alpha=0.7)
+mpl_plt.xticks(rotation=0)
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+Sales_Table['month'] = Sales_Table['daydt'].dt.month
+
+mpl_plt.figure(figsize=(10, 6))
+sales_per_store_per_month = Sales_Table.groupby(['store_id', 'month'])['sales'].sum()
+sales_per_store_per_month.unstack().plot(kind='bar', stacked=False, ax=mpl_plt.gca())
+mpl_plt.title('Sales per Store per Month')
+mpl_plt.xlabel('Store')
+mpl_plt.ylabel('Total Sales')
+mpl_plt.grid(axis='y', linestyle='--', alpha=0.7)
+mpl_plt.xticks(rotation=0)
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+mpl_plt.boxplot(Regular_price_Table['regular_price'])
+mpl_plt.title('Box Plot των Regular Prices')
+mpl_plt.ylabel('Regular Price')
+mpl_plt.xticks([1], ['Regular Prices'])
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+sns.boxplot(data=Regular_price_Table, x='item_id', y='regular_price')
+mpl_plt.title('Box Plot των Regular Prices ανά Item')
+mpl_plt.xlabel('Item ID')
+mpl_plt.ylabel('Regular Price')
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+Regular_price_Table['year'] = pd.to_datetime(Regular_price_Table['daydt']).dt.year
+
+custom_palette = sns.color_palette("husl", len(Regular_price_Table['item_id'].unique()))
+
+mpl_plt.figure(figsize=(10, 6))
+sns.lineplot(data=Regular_price_Table, x='year', y='regular_price', hue='item_id', palette=custom_palette, marker='o')
+mpl_plt.title('Regular Prices according to year and item_id')
+mpl_plt.xlabel('Year')
+mpl_plt.ylabel('Regular Price')
+mpl_plt.grid(True)
+mpl_plt.legend(title='Item ID', loc='upper left', bbox_to_anchor=(1, 1))
+mpl_plt.show()
+
+mpl_plt.figure(figsize=(10, 6))
+Regular_price_Table.groupby('store_id')['regular_price'].mean().plot(kind='bar', color='skyblue')
+mpl_plt.title('Average Regular Price per Store')
+mpl_plt.xlabel('Store')
+mpl_plt.ylabel('Average Regular Price')
+mpl_plt.grid(axis='y', linestyle='--', alpha=0.7)
+mpl_plt.xticks(rotation=0)
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+pivot_table = pd.pivot_table(Sales_Table, values='sales', index='year', columns='item_id', aggfunc='mean')
+
+print(pivot_table)
+
+item_id         1         2         4         5         6         7
+year                                                               
+2019     8.179487  3.219780  5.854396  0.046296  0.019691       NaN
+2020     6.622607  5.426184  3.196721  0.040984  0.010929  0.015666
+2021     6.466421  6.016620  2.621918  0.019178  0.016438  0.093151
+2022     4.618421  4.681102  1.905512  0.023622  0.007874  0.039370
+
+pivot_table_Sales = pd.pivot_table(Sales_Table, values='sales', index='year', columns='item_id', aggfunc='sum')
+
+print(pivot_table_Sales)
+
+item_id       1       2       4     5     6     7
+year                                             
+2019     8932.0  1172.0  2131.0   5.0  14.0   NaN
+2020     7265.0  1948.0  1170.0  15.0   8.0   6.0
+2021     7029.0  2172.0   957.0   7.0  12.0  68.0
+2022     3510.0  1189.0   484.0   6.0   4.0  20.0
+
+Regular_price_Table['daydt'] = pd.to_datetime(Regular_price_Table['daydt'])
+
+pivot_table_regular_price = pd.pivot_table(Regular_price_Table, index=Regular_price_Table['daydt'].dt.month, columns='item_id',values='regular_price', aggfunc='mean')
+print(pivot_table_regular_price)
+
+item_id           1     2          4          5           6           7
+daydt                                                                  
+1        199.559350  97.3  24.831707  20.004301  315.800000  160.983688
+2        200.039528  97.3  24.827434  20.025882  319.417699  170.536879
+3        200.160916  97.3  24.825000  20.033333  319.450000  169.900000
+4        199.590196  97.3  24.825000  20.033333  319.450000  169.900000
+5        199.903784  97.3  24.825000  20.033333  319.450000  169.900000
+6        202.800000  97.3  24.825000  20.033333  319.450000  169.900000
+7        206.138005  97.3  24.966935  20.033333  319.450000  169.900000
+8        202.977297  97.3  25.100000  20.033333  319.450000  169.900000
+9        200.279070  97.3  25.100000  19.755172  317.390099  177.516964
+10       199.933333  97.3  25.100000  19.533333  315.800000  184.866667
+11       199.933333  97.3  25.100000  19.533333  315.800000  184.866667
+12       199.933333  97.3  25.100000  19.533333  315.800000  147.450000
+
+pivot_table_Sales = pd.pivot_table(Sales_Table, values='sales', index=Sales_Table['daydt'].dt.month, columns='item_id', aggfunc='mean')
+print(pivot_table_Sales)
+
+item_id         1         2         4         5         6         7
+daydt                                                              
+1        7.794038  4.382114  4.398374  0.032258  0.017467  0.014184
+2        7.262537  4.464286  4.592920  0.082353  0.030973  0.035461
+3        5.501348  3.919355  4.467742  0.032258  0.016129  0.012903
+4        5.260504  4.661017  2.516667  0.011111  0.004167  0.013333
+5        6.637838  4.373984  2.362903  0.010753  0.024194  0.064516
+6        6.552778  6.781513  3.333333  0.011111  0.004167  0.080000
+7        6.253369  6.716667  3.201613  0.032258  0.000000  0.058065
+8        5.783784  5.104839  4.330645  0.032258  0.008065  0.154839
+9        7.249169  3.520000  4.267327  0.034483  0.004950  0.008929
+10       7.530466  5.161290  2.892473  0.021505  0.021505  0.107527
+11       7.522222  4.422222  3.277778  0.033333  0.016667  0.133333
+12       6.774194  4.260870  2.193548  0.032258  0.026882  0.040323
+
+pivot_table_promo_price = pd.pivot_table(Promo_price_Table, values='promo_price', index=Sales_Table['daydt'].dt.month, columns='item_id', aggfunc='mean')
+print(pivot_table_promo_price)
+
+item_id           1     4     5      6
+daydt                                 
+2        199.154545  20.1   NaN  252.6
+3        202.264286  20.1   NaN  252.6
+4        207.794118  20.1   NaN  264.3
+5               NaN   NaN   NaN  252.6
+6        246.062500  20.1  15.5  252.6
+7               NaN   NaN  15.5  252.6
+9        177.071429  20.1   NaN  252.6
+11       224.815789  20.1   NaN  252.6
+12       110.521053  20.1   NaN    NaN
+
+pivot_table_Sales = pd.pivot_table(Sales_Table, values='sales', index=Sales_Table['daydt'].dt.month, columns='item_id', aggfunc='sum')
+
+print(pivot_table_Sales)
+
+item_id     1    2    4  5  6   7
+daydt                            
+1        2876  539  541  3  4   2
+2        2462  500  519  7  7   5
+3        2041  486  554  3  4   2
+4        1878  550  302  1  1   2
+5        2456  538  293  1  6  10
+6        2359  807  400  1  1  12
+7        2320  806  397  3  0   9
+8        2140  633  537  3  2  24
+9        2182  352  431  3  1   1
+10       2101  480  269  2  4  10
+11       2031  398  295  3  3  12
+12       1890  392  204  3  5   5
+
+Promo_price_Table['daydt'] = pd.to_datetime(Promo_price_Table['daydt'])
+
+pivot_table1 = pd.merge(Sales_Table, Promo_price_Table, on=['daydt', 'item_id', 'store_id'], how='left')
+pivot_table = pd.merge(pivot_table1, Regular_price_Table, on=['daydt', 'item_id', 'store_id'], how='left')
+
+print(pivot_table)
+
+           daydt  item_id  store_id  sales  year_x  month  promo_price  \
+0     2022-05-01        7         2      0    2022      5          NaN   
+1     2021-09-25        7         2      0    2021      9          NaN   
+2     2021-09-26        7         2      0    2021      9          NaN   
+3     2021-09-27        7         2      0    2021      9          NaN   
+4     2021-09-28        7         2      0    2021      9          NaN   
+...          ...      ...       ...    ...     ...    ...          ...   
+12113 2019-01-05        4         2      5    2019      1          NaN   
+12114 2019-01-06        4         2      5    2019      1          NaN   
+12115 2019-01-07        4         2      5    2019      1          NaN   
+12116 2019-01-08        4         2      6    2019      1          NaN   
+12117 2019-01-09        4         2      5    2019      1          NaN   
+
+       regular_price  year_y  
+0               35.2    2022  
+1               35.2    2021  
+2               35.2    2021  
+3               35.2    2021  
+4               35.2    2021  
+...              ...     ...  
+12113           24.0    2019  
+12114           24.0    2019  
+12115           24.0    2019  
+12116           24.0    2019  
+12117           24.0    2019  
+
+[12118 rows x 9 columns]
+
+Promo_price_Evaluation_Table = pd.read_csv('./Kivos_Challenge(pivot_table2).csv')
+
+print(Promo_price_Evaluation_Table)
+
+            daydt  item_id  store_id  sales  year_x  month  promo_price  \
+0      2022-05-01        7         2      0    2022      5          NaN   
+1      2021-09-25        7         2      0    2021      9          NaN   
+2      2021-09-26        7         2      0    2021      9          NaN   
+3      2021-09-27        7         2      0    2021      9          NaN   
+4      2021-09-28        7         2      0    2021      9          NaN   
+...           ...      ...       ...    ...     ...    ...          ...   
+12113  2019-01-05        4         2      5    2019      1          NaN   
+12114  2019-01-06        4         2      5    2019      1          NaN   
+12115  2019-01-07        4         2      5    2019      1          NaN   
+12116  2019-01-08        4         2      6    2019      1          NaN   
+12117  2019-01-09        4         2      5    2019      1          NaN   
+
+       regular_price  year_y  
+0               35.2    2022  
+1               35.2    2021  
+2               35.2    2021  
+3               35.2    2021  
+4               35.2    2021  
+...              ...     ...  
+12113           24.0    2019  
+12114           24.0    2019  
+12115           24.0    2019  
+12116           24.0    2019  
+12117           24.0    2019  
+
+[12118 rows x 9 columns]
+
+Promo_price_Evaluation_Table = Promo_price_Evaluation_Table.dropna(subset=['promo_price'])
+
+print(Promo_price_Evaluation_Table)
+
+            daydt  item_id  store_id  sales  year_x  month  promo_price  \
+725    2021-07-15        1         1     12    2021      7        294.5   
+726    2021-07-16        1         1     16    2021      7        294.5   
+727    2021-07-17        1         1     14    2021      7        294.5   
+890    2021-01-29        1         1     25    2021      1        277.7   
+891    2021-01-30        1         1     17    2021      1        277.7   
+...           ...      ...       ...    ...     ...    ...          ...   
+11786  2021-05-06        4         2      3    2021      5         20.1   
+11787  2021-05-07        4         2      1    2021      5         20.1   
+11841  2021-02-27        4         2      1    2021      2         20.1   
+11853  2021-02-25        4         2      2    2021      2         20.1   
+11854  2021-02-26        4         2      2    2021      2         20.1   
+
+       regular_price  year_y  
+725            295.3    2021  
+726            295.3    2021  
+727            295.3    2021  
+890            295.3    2021  
+891            295.3    2021  
+...              ...     ...  
+11786           25.1    2021  
+11787           25.1    2021  
+11841           25.1    2021  
+11853           25.1    2021  
+11854           25.1    2021  
+
+[253 rows x 9 columns]
+
+Promo_price_Evaluation_Table = Promo_price_Evaluation_Table.drop(['year_x', 'month', 'year_y'], axis=1)
+
+print(Promo_price_Evaluation_Table)
+
+            daydt  item_id  store_id  sales  promo_price  regular_price
+725    2021-07-15        1         1     12        294.5          295.3
+726    2021-07-16        1         1     16        294.5          295.3
+727    2021-07-17        1         1     14        294.5          295.3
+890    2021-01-29        1         1     25        277.7          295.3
+891    2021-01-30        1         1     17        277.7          295.3
+...           ...      ...       ...    ...          ...            ...
+11786  2021-05-06        4         2      3         20.1           25.1
+11787  2021-05-07        4         2      1         20.1           25.1
+11841  2021-02-27        4         2      1         20.1           25.1
+11853  2021-02-25        4         2      2         20.1           25.1
+11854  2021-02-26        4         2      2         20.1           25.1
+
+[253 rows x 6 columns]
+
+Promo_price_Evaluation_Table['daydt'] = pd.to_datetime(Promo_price_Evaluation_Table['daydt'])
+
+mpl_plt.figure(figsize=(10, 6))
+heatmap = sns.heatmap(Promo_price_Evaluation_Table.corr(), annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+mpl_plt.title('Correlation Heatmap')
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+mpl_plt.scatter(Promo_price_Evaluation_Table['promo_price'], Promo_price_Evaluation_Table['sales'], alpha=0.5)
+mpl_plt.title('Sales accodrding to Promo_Price')
+mpl_plt.xlabel('Promo_Price')
+mpl_plt.ylabel('Sales')
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+mpl_plt.scatter(Promo_price_Evaluation_Table['regular_price'], Promo_price_Evaluation_Table['sales'], alpha=0.5)
+mpl_plt.title('Sales accodrding to Regular_Price')
+mpl_plt.xlabel('Regular_Price')
+mpl_plt.ylabel('Sales')
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+pairplot_columns = ['sales', 'promo_price', 'regular_price','item_id']
+
+pairplot_data = Promo_price_Evaluation_Table[pairplot_columns]
+
+sns.pairplot(pairplot_data, hue='item_id', palette='tab10', height=4)
+mpl_plt.grid(True)
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+num_cols = 2
+num_rows = 2
+fig, axes = mpl_plt.subplots(num_rows, num_cols, figsize=(12, 10))
+barplot_params = {
+    'ci': None,
+    'palette': 'Set2',}
+sns.barplot(x='promo_price', y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, 0], **barplot_params)
+axes[0, 0].set_title('Sales by Promo Price')
+sns.barplot(x='regular_price', y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, 1], **barplot_params)
+axes[0, 1].set_title('Sales by Regular Price')
+sns.barplot(x='daydt', y='sales', data=Promo_price_Evaluation_Table, ax=axes[1, 0], **barplot_params)
+axes[1, 0].set_title('Sales by Month')
+axes[1, 1].axis('off')
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+  sns.barplot(x='daydt', y='sales', data=Promo_price_Evaluation_Table, ax=axes[1, 0], **barplot_params)
+
+
+
+Promo_price_Evaluation_Table['daydt'] = pd.to_datetime(Promo_price_Evaluation_Table['daydt'], dayfirst=True)
+
+Promo_price_Evaluation_Table['month'] = Promo_price_Evaluation_Table['daydt'].dt.month
+
+Promo_price_Evaluation_Table['year'] = Promo_price_Evaluation_Table['daydt'].dt.year
+
+print(Promo_price_Evaluation_Table)
+
+           daydt  item_id  store_id  sales  promo_price  regular_price  month  \
+725   2021-07-15        1         1     12        294.5          295.3      7   
+726   2021-07-16        1         1     16        294.5          295.3      7   
+727   2021-07-17        1         1     14        294.5          295.3      7   
+890   2021-01-29        1         1     25        277.7          295.3      1   
+891   2021-01-30        1         1     17        277.7          295.3      1   
+...          ...      ...       ...    ...          ...            ...    ...   
+11786 2021-05-06        4         2      3         20.1           25.1      5   
+11787 2021-05-07        4         2      1         20.1           25.1      5   
+11841 2021-02-27        4         2      1         20.1           25.1      2   
+11853 2021-02-25        4         2      2         20.1           25.1      2   
+11854 2021-02-26        4         2      2         20.1           25.1      2   
+
+       year  
+725    2021  
+726    2021  
+727    2021  
+890    2021  
+891    2021  
+...     ...  
+11786  2021  
+11787  2021  
+11841  2021  
+11853  2021  
+11854  2021  
+
+[253 rows x 8 columns]
+
+fig, axes = mpl_plt.subplots(num_rows, num_cols, figsize=(12, 10))
+categories = ['year', 'month']
+for i, category in enumerate(categories):
+    sns.barplot(x=category, y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, i], **barplot_params)
+    axes[0, i].set_title(f'Sales by {category}')
+    axes[0, i].set_xlabel(category.capitalize())
+    axes[0, i].set_ylabel('Sales')
+    sns.regplot(x=Promo_price_Evaluation_Table[category], y=Promo_price_Evaluation_Table['sales'], ax=axes[1, i], scatter=False, line_kws={"color": "red"})
+    axes[1, i].set_title(f'Linear Regression of Sales by {category}')
+    axes[1, i].set_xlabel(category.capitalize())
+    axes[1, i].set_ylabel('Sales')
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+  sns.barplot(x=category, y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, i], **barplot_params)
+
+
+
+num_rows = 2
+num_cols = 2
+fig, axes = mpl_plt.subplots(num_rows, num_cols, figsize=(12, 10))
+barplot_params = {'ci': None, 'palette': 'Set2'}
+sns.barplot(x='promo_price', y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, 0], **barplot_params)
+axes[0, 0].set_title('Sales by Promo Price')
+sns.barplot(x='regular_price', y='sales', data=Promo_price_Evaluation_Table, ax=axes[0, 1], **barplot_params)
+axes[0, 1].set_title('Sales by Regular Price')
+sns.barplot(x='month', y='sales', hue='year', data=Promo_price_Evaluation_Table, ax=axes[1, 0], **barplot_params)
+axes[1, 0].set_title('Sales by Month')
+axes[1, 1].axis('off')
+mpl_plt.tight_layout()
+mpl_plt.show()
+
+
+
+  sns.barplot(x='month', y='sales', hue='year', data=Promo_price_Evaluation_Table, ax=axes[1, 0], **barplot_params)
+
+
+
+print(Sales_Table)
+
+           daydt  item_id  store_id  sales  year  month
+0     2022-05-01        7         2      0  2022      5
+1     2021-09-25        7         2      0  2021      9
+2     2021-09-26        7         2      0  2021      9
+3     2021-09-27        7         2      0  2021      9
+4     2021-09-28        7         2      0  2021      9
+...          ...      ...       ...    ...   ...    ...
+12113 2019-01-05        4         2      5  2019      1
+12114 2019-01-06        4         2      5  2019      1
+12115 2019-01-07        4         2      5  2019      1
+12116 2019-01-08        4         2      6  2019      1
+12117 2019-01-09        4         2      5  2019      1
+
+[12118 rows x 6 columns]
+
+Forecast_Table['daydt'] = pd.to_datetime(Forecast_Table['daydt'])
+
+sales_for_may_2022 = Sales_Table.loc[
+    (Sales_Table['daydt'].dt.year == 2022) & (Sales_Table['daydt'].dt.month == 5)
+]
+
+Forecast_evaluation_with_sales = pd.merge(sales_for_may_2022, Forecast_Table, on=['daydt', 'item_id', 'store_id'], how='inner')
+
+print(Forecast_evaluation_with_sales)
+
+         daydt  item_id  store_id  sales  year  month  forecast
+0   2022-05-23        7         2      0  2022      5   0.00000
+1   2022-05-24        7         2      0  2022      5   0.00000
+2   2022-05-25        7         2      0  2022      5   0.19000
+3   2022-05-26        7         2      0  2022      5   0.00000
+4   2022-05-27        7         2      0  2022      5   0.00000
+..         ...      ...       ...    ...   ...    ...       ...
+275 2022-05-10        4         2      2  2022      5   2.45671
+276 2022-05-11        4         2      1  2022      5   2.18700
+277 2022-05-02        4         2      0  2022      5   3.88300
+278 2022-05-03        4         2      4  2022      5   3.00586
+279 2022-05-04        4         2      2  2022      5   3.30457
+
+[280 rows x 7 columns]
+
+sns.boxplot(y=Forecast_Table['forecast'])
+mpl_plt.xticks(rotation=90)
+mpl_plt.show()
+
+
+
+r_squared = r2_score(Forecast_evaluation_with_sales['sales'], Forecast_evaluation_with_sales['forecast'])
+
+mse = mean_squared_error(Forecast_evaluation_with_sales['sales'], Forecast_evaluation_with_sales['forecast'])
+
+print("R-squared:", r_squared)
+print("Mean Squared Error:", mse)
+
+R-squared: -0.29778364689849535
+Mean Squared Error: 15.071174734122499
+
+sales_summary_for_may = sales_for_may_2022['sales'].describe()
+print(sales_summary_for_may)
+
+count    310.000000
+mean       2.070968
+std        3.664064
+min        0.000000
+25%        0.000000
+50%        0.000000
+75%        3.000000
+max       36.000000
+Name: sales, dtype: float64
+
+print(forecast_summary)
+
+count    280.000000
+mean       2.588618
+std        3.622885
+min        0.000000
+25%        0.155500
+50%        0.452075
+75%        4.007180
+max       19.311570
+Name: forecast, dtype: float64
+
+sns.boxplot(y=Sales_Table['sales'])
+mpl_plt.xticks(rotation=90)
+mpl_plt.show()
+
+
+
+mpl_plt.figure(figsize=(10, 6))
+mpl_plt.hist(Sales_Table['sales'], bins=30, color='blue', alpha=0.7)
+mpl_plt.title('Sales Distribution')
+mpl_plt.xlabel('Sales')
+mpl_plt.ylabel('Frequency')
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+Sales_Table['daydt'] = pd.to_datetime(Sales_Table['daydt'])  # Μετατροπή σε datetime
+Sales_Table.set_index('daydt', inplace=True)
+
+Sales_Table['sales'].resample('M').sum().plot(kind='line', figsize=(10, 6))
+mpl_plt.title('Sales Trend per Month')
+mpl_plt.xlabel('Date')
+mpl_plt.ylabel('Total Sales')
+mpl_plt.grid(True)
+mpl_plt.show()
+
+
+
+
+
